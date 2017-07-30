@@ -1,5 +1,8 @@
 # Copyright (c) Peter Majko.
 
+"""
+Rhapsody's various data formatting function's and classes
+"""
 
 # region PrettyFormatter
 # Not part of a copyright, original by y.petremann
