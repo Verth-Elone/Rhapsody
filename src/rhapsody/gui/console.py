@@ -4,6 +4,7 @@
 Rhapsody's GUI console library - all the consoles for your tkinter needs :)
 """
 import tkinter as tk
+# TODO - properly document!!!
 
 
 class ConsoleFrame(tk.Frame):
