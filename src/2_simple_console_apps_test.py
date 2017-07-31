@@ -24,4 +24,4 @@ if __name__ == '__main__':
             parent2_conn_.send(parent_conn_.recv())
         if parent2_conn_.poll():
             parent_conn_.send(parent2_conn_.recv())
-        time.sleep(1)
+        time.sleep(0.01)
