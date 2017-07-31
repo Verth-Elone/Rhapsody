@@ -6,7 +6,7 @@ Rhapsody's multiprocessing module.
 import time
 
 
-class PipeHandle:
+class PipeHandler:
     """
     Handles python's standard multiprocessing library's Connection object created by Pipe.
     It is using time.sleep for self.read_loop().
