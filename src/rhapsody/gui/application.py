@@ -102,7 +102,7 @@ if __name__ == '__main__':
     should appear in the other's output field - and vice versa.
     """
     p, parent_conn_ = create_app_process(SimpleConsoleApplication,
-                                         {'title': 'Simple Console 1', 'x_modifier': -1})
+                                         {'title': 'Simple Console 1'})
     p2, parent2_conn_ = create_app_process(SimpleConsoleApplication,
                                            {'title': 'Simple Console 2'})
     p.start()

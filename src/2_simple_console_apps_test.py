@@ -10,9 +10,9 @@ from rhapsody.gui.application import SimpleConsoleApplication, create_app_proces
 
 if __name__ == '__main__':
     p, parent_conn_ = create_app_process(SimpleConsoleApplication,
-                                         {'title': 'Simple Console 1', 'x_modifier': -1})
+                                         {'title': 'Simple Console 1', 'x_modifier': 0.5})
     p2, parent2_conn_ = create_app_process(SimpleConsoleApplication,
-                                           {'title': 'Simple Console 2'})
+                                           {'title': 'Simple Console 2', 'x_modifier': 1.5})
     p.start()
     p2.start()
 
