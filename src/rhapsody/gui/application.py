@@ -5,7 +5,7 @@ Rhapsody's GUI application library
 """
 import tkinter as tk
 from multiprocessing import Process, Pipe
-from rhapsody.gui.handlers import TkPipeHandle
+from rhapsody.gui.handler import TkPipeHandle
 from rhapsody.gui.console import ConsoleFrame
 
 
