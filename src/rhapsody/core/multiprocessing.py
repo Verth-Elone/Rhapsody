@@ -125,7 +125,7 @@ class AdvancedPipeHandler(PipeHandler):
     def change_on_recv_handle(self, handle):
         """
         Self explanatory - I hope :)
-        :param func: Function/method which should handle the data sent by other side of Pipe
+        :param handle: Function/method which should handle the data sent by other side of Pipe
         :return: -
         """
         # TODO - check if handle has at least one argument - for data
