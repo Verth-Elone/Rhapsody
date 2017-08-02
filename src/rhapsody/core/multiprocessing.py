@@ -93,13 +93,13 @@ class PipeHandler:
 
 class AdvancedPipeHandler(PipeHandler):
     """
-        Multiprocessing's Pipe handler. Inherit's from PipeHandle.
+    Multiprocessing Pipe's handler. Inherit's from PipeHandle.
 
-        Overrides self.on_recv to be able to handle received data from outside of the class
-        via any function passed as on_recv_handle init argument. The self._on_handling_func
-        pointer can be later redirected to any function passed as argument into
-        self.change_on_recv_handle.
-        """
+    Overrides self.on_recv to be able to handle received data from outside of the class
+    via any function passed as on_recv_handle init argument. The self._on_handling_func
+    pointer can be later redirected to any function passed as argument into
+    self.change_on_recv_handle.
+    """
 
     def __init__(self, conn, refresh_rate=60, on_recv_handle=None):
         """
