@@ -9,9 +9,9 @@ import tkinter as tk
 
 class ConsoleFrame(tk.Frame):
 
-    def __init__(self, master=None, on_input_func=None):
+    def __init__(self, master=None, on_input_handle=None):
         super().__init__(master)
-        self._on_input_handling_func = on_input_func
+        self._on_input_handle = on_input_handle
         self.config(background='red')
 
         self._output_widget = tk.Text(self)
@@ -55,13 +55,13 @@ class ConsoleFrame(tk.Frame):
             self._input_history_current_index = len(self._input_history) - 1
             self._input_history[self._input_history_current_index] = ''
             self._input_widget.delete(0, 'end')
-            if not self._on_input_handling_func:
+            if not self._on_input_handle:
                 self.write(user_input)
             else:
-                self._on_input_handling_func(user_input)
+                self._on_input_handle(user_input)
 
-    def change_on_input_handling_func(self, func):
-        self._on_input_handling_func = func
+    def change_on_input_handle(self, handle: function):
+        self._on_input_handle = handle
 
     def _input_history_prev(self, event):
         if len(self._input_history) > 0 and self._input_history_current_index - 1 >= 0:
