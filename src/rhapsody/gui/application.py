@@ -5,7 +5,7 @@ Rhapsody's GUI application library
 """
 import tkinter as tk
 from multiprocessing import Process, Pipe
-from rhapsody.gui.handler import TkPipeHandle
+from rhapsody.gui.handler import TkPipeHandler
 from rhapsody.gui.console import ConsoleFrame
 
 
@@ -78,7 +78,7 @@ class BasicPipedApplication(BasicApplication):
     def __init__(self, pipe_conn, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.conn = pipe_conn
-        self.conn_handler = TkPipeHandle(self, 30)
+        self.conn_handler = TkPipeHandler(self, 30)
 
 
 class SimpleConsoleApplication(BasicPipedApplication):

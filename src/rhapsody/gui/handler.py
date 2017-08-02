@@ -6,7 +6,7 @@ Rhapsody's gui handlers, designed to work with tkinter.
 from rhapsody.core.multiprocessing import PipeHandler
 
 
-class TkPipeHandle(PipeHandler):
+class TkPipeHandler(PipeHandler):
     """
     Multiprocessing's Pipe handler. Designed to work with Tkinter library.
     Inherit's from PipeHandle.
