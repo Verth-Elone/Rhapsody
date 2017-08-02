@@ -4,35 +4,8 @@
 Rhapsody's GUI application library
 """
 import tkinter as tk
-from multiprocessing import Process, Pipe
 from rhapsody.gui.handler import TkPipeHandler
 from rhapsody.gui.console import ConsoleFrame
-
-
-def create_app_process(app, kwargs={}):
-    """
-
-    :param app: Some application class from this module
-    :param kwargs: Dictionary of arguments for the init of app
-    :return: tuple of Process and Pipe's parent_conn
-    """
-    parent_conn, child_conn = Pipe()
-    kwargs['pipe_conn'] = child_conn
-    process = Process(target=start_app, kwargs={'app': app, 'kwargs': kwargs})
-    return process, parent_conn
-
-
-def start_app(app, kwargs={}):
-    """
-    This is a MUST to initialize tkinter.Tk object in new process and not before!
-    If tkinter.Tk is initialized in the parent Process and mainloop is passed as
-    target of new child Process, Tcl dislikes that!
-    :param app: tkinter.Tk or any class inheriting from it
-    :param kwargs: see the app's __init__ for supported arguments
-    :return: -
-    """
-    app = app(**kwargs)
-    app.mainloop()
 
 
 class BasicApplication(tk.Tk):
@@ -94,27 +67,3 @@ class SimpleConsoleApplication(BasicPipedApplication):
         self.conn_handler.change_on_recv_handling_func(self.console.write)
         # register handle's send method with the console's on input 'event'
         self.console.change_on_input_handling_func(self.conn_handler.send)
-
-
-if __name__ == '__main__':
-    """
-    Just a simple test :) write something into one app's input field, hit enter and it
-    should appear in the other's output field - and vice versa.
-    """
-    p, parent_conn_ = create_app_process(SimpleConsoleApplication,
-                                         {'title': 'Simple Console 1'})
-    p2, parent2_conn_ = create_app_process(SimpleConsoleApplication,
-                                           {'title': 'Simple Console 2'})
-    p.start()
-    p2.start()
-
-    import time
-
-    time.sleep(0.1)
-
-    while p.is_alive() and p2.is_alive():
-        if parent_conn_.poll():
-            parent2_conn_.send(parent_conn_.recv())
-        if parent2_conn_.poll():
-            parent_conn_.send(parent2_conn_.recv())
-        time.sleep(1)

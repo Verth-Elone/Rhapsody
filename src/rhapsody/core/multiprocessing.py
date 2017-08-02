@@ -4,6 +4,39 @@
 Rhapsody's multiprocessing module.
 """
 import time
+from multiprocessing import Process, Pipe
+
+
+def create_piped_process(class_, start_method_name, kwargs={}):
+    """
+    Creates the Pipe() with two connection points.
+    Creates the class_ instance in the separate process and runs its' start_method_name
+    method when process.start().
+    :param class_: Any class which is designed for running in it's own process
+    :param start_method_name: Method of the class_ which is run when process.start()
+    :param kwargs: Dictionary of arguments for the init of class_
+    :return: tuple of Process and Pipe's parent_conn
+    """
+    parent_conn, child_conn = Pipe()
+    kwargs['pipe_conn'] = child_conn
+    process = Process(target=build_and_start_inside_process,
+                      kwargs={'class_': class_,
+                              'start_method_name': start_method_name,
+                              'kwargs': kwargs})
+    return process, parent_conn
+
+
+def build_and_start_inside_process(class_, start_method_name, kwargs={}):
+    """
+    This is needed in the case that the object created based on the class must be initialized
+    in the separate process.
+    :param class_: Class which is to be initialized in the separate process
+    :param start_method_name: Method of the class_ which is run when process.start()
+    :param kwargs: dictionary of arguments for the class_ instance initialization
+    :return: -
+    """
+    instance = class_(**kwargs)
+    eval('instance.{sm}()'.format(sm=start_method_name))
 
 
 class PipeHandler:
