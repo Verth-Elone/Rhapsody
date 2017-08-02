@@ -89,3 +89,43 @@ class PipeHandler:
         :return:
         """
         self.conn.send(data)
+
+
+class AdvancedPipeHandler(PipeHandler):
+    """
+        Multiprocessing's Pipe handler. Inherit's from PipeHandle.
+
+        Overrides self.on_recv to be able to handle received data from outside of the class
+        via any function passed as on_recv_handle init argument. The self._on_handling_func
+        pointer can be later redirected to any function passed as argument into
+        self.change_on_recv_handle.
+        """
+
+    def __init__(self, conn, refresh_rate=60, on_recv_handle=None):
+        """
+        :param on_recv_handle: function/method to handle received data
+        """
+        super().__init__(conn=conn, refresh_rate=refresh_rate)
+        self._on_recv_handle = on_recv_handle
+
+    def on_recv(self, data):
+        """
+        Overrides self.on_recv to be able to handle received data from outside of the class
+        via any function passed as on_recv_handle init argument. The self._on_handling_func
+        pointer can be later redirected to any function passed as argument into
+        self.change_on_recv_handle.
+        :param data: any object sent by the other side of the Pipe
+        :return: -
+        """
+        if not self._on_recv_handle:
+            pass
+        else:
+            self._on_recv_handle(data)
+
+    def change_on_recv_handle(self, func):
+        """
+        Self explanatory - I hope :)
+        :param func: Function/method which should handle the data sent by other side of Pipe
+        :return: -
+        """
+        self._on_recv_handle = func
