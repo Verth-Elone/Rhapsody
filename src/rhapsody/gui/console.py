@@ -42,9 +42,11 @@ class ConsoleFrame(tk.Frame):
     def write(self, data):
         self._output_widget.configure(state=tk.NORMAL)
         self._output_widget.insert('end', data)
-        self._output_widget.insert('end', '\n')
         self._output_widget.see('end')
         self._output_widget.configure(state=tk.DISABLED)
+
+    def writeline(self, data):
+        self.write(data + '\n')
 
     def _input(self, event):
         user_input = self._input_content.get()

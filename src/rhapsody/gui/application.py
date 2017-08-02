@@ -78,7 +78,7 @@ class BasicPipedApplication(BasicApplication):
     def __init__(self, pipe_conn, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.conn = pipe_conn
-        self.handle = TkPipeHandle(self, 30)
+        self.conn_handler = TkPipeHandle(self, 30)
 
 
 class SimpleConsoleApplication(BasicPipedApplication):
@@ -91,9 +91,9 @@ class SimpleConsoleApplication(BasicPipedApplication):
         self.console = ConsoleFrame(self)
         self.console.pack(fill='both', side='bottom', expand='True')
         # register ConsoleFrame's write method with handle's on receive 'event'
-        self.handle.change_on_recv_handling_func(self.console.write)
+        self.conn_handler.change_on_recv_handling_func(self.console.write)
         # register handle's send method with the console's on input 'event'
-        self.console.change_on_input_handling_func(self.handle.send)
+        self.console.change_on_input_handling_func(self.conn_handler.send)
 
 
 if __name__ == '__main__':
