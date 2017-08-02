@@ -64,6 +64,6 @@ class SimpleConsoleApplication(BasicPipedApplication):
         self.console = ConsoleFrame(self)
         self.console.pack(fill='both', side='bottom', expand='True')
         # register ConsoleFrame's write method with handle's on receive 'event'
-        self.conn_handler.change_on_recv_handling_func(self.console.write)
+        self.conn_handler.change_on_recv_handle(self.console.write)
         # register handle's send method with the console's on input 'event'
-        self.console.change_on_input_handling_func(self.conn_handler.send)
+        self.console.change_on_input_handle(self.conn_handler.send)
