@@ -60,7 +60,7 @@ class ConsoleFrame(tk.Frame):
             else:
                 self._on_input_handle(user_input)
 
-    def change_on_input_handle(self, handle: function):
+    def change_on_input_handle(self, handle):
         self._on_input_handle = handle
 
     def _input_history_prev(self, event):
