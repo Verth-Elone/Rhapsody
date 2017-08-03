@@ -11,7 +11,8 @@ import logging
 def get_default_logger(name=None):
     logger = logging.getLogger(name)
     if not logger.hasHandlers():
-        formatter = logging.Formatter(fmt='%(asctime)s|%(levelname)s|%(name)s: %(message)s',
+        formatter = logging.Formatter(fmt='%(process)d|%(processName)s|%(thread)d|%(threadName)s|'
+                                          '%(asctime)s|%(levelname)s|%(filename)s|%(name)s.%(funcName)s: %(message)s',
                                       datefmt='%d.%m.%Y %T')
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
@@ -36,7 +37,7 @@ class LoggingPipeHandler(logging.Handler):
 
     def emit(self, record):
         log_entry = self.format(record)
-        self.pipe_handler.send(log_entry)
+        self.pipe_handler.send(log_entry + '\n')
 
 
 class PipeStream:
