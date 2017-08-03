@@ -1,8 +1,8 @@
 # Copyright (c) Peter Majko.
 
 
-from rhapsody.gui.application import SimpleConsoleApplication, create_app_process
-from rhapsody.core.multiprocessing import PipeHandler
+from rhapsody.gui.application import SimpleConsoleApplication
+from rhapsody.core.multiprocess import PipeHandler, create_piped_process
 import logging
 
 
