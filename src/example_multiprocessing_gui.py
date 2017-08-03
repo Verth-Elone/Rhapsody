@@ -2,7 +2,7 @@
 
 
 from rhapsody.gui.application import SimpleConsoleApplication
-from rhapsody.core.multiprocessing import create_piped_process
+from rhapsody.core.multiprocess import create_piped_process
 
 
 if __name__ == '__main__':

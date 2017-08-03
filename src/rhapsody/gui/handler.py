@@ -3,7 +3,7 @@
 """
 Rhapsody's gui handlers, designed to work with tkinter.
 """
-from rhapsody.core.multiprocessing import AdvancedPipeHandler
+from rhapsody.core.multiprocess import AdvancedPipeHandler
 
 
 class TkPipeHandler(AdvancedPipeHandler):
