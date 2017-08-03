@@ -14,7 +14,7 @@ class CommandProcessor:
 
     def __init__(self, commands: dict, logger=None):
         if not logger:
-            logger = get_default_logger('CommandProcessor')
+            logger = get_default_logger(self.__class__.__name__)
         self.log = logger
         self.commands = commands
         self.data = None
@@ -22,7 +22,7 @@ class CommandProcessor:
     def process(self, data):
         self.log.debug('Data {} {}'.format(type(data), data))
         command_name, args, kwargs = self.resolve_data(data)
-        return self._call_command(command_name, args, kwargs)
+        return self.call_command(command_name, args, kwargs)
 
     def resolve_data(self, data):
         """
@@ -48,17 +48,25 @@ class CommandProcessor:
         # At the moment dict is not supported!
         if isinstance(data_structure, tuple) or isinstance(data_structure, list):
             command_name = data_structure[0]
+            args = []
+            kwargs = {}
             try:
-                args = data_structure[1]
+                if isinstance(data_structure[1], tuple) or isinstance(data_structure[1], list):
+                    args = data_structure[1]
+                else:
+                    kwargs = data_structure[1]
             except IndexError:
-                args = []
-            try:
-                kwargs = data_structure[2]
-            except IndexError:
-                kwargs = {}
+                pass
+            else:
+                if not kwargs:
+                    try:
+                        if isinstance(data_structure[2], dict):
+                            kwargs = data_structure[2]
+                    except IndexError:
+                        pass
             return command_name, args, kwargs
         else:
-           raise UnsupportedDataType('data_structure', data_structure, [list, tuple])
+            raise UnsupportedDataType('data_structure', data_structure, [list, tuple])
 
     def try_json(self, data):
         """
@@ -67,13 +75,13 @@ class CommandProcessor:
         :return:
         """
         try:
-            data_struct = json.loads(data)
+            data_structure = json.loads(data)
         except json.decoder.JSONDecodeError as err:
             self.log.debug('Data not a json struct. Err: {}'.format(err))
             return None
         else:
             self.log.debug('Data is a json struct')
-            return data_struct
+            return data_structure
 
     def try_xml(self, data):
         """
@@ -85,7 +93,7 @@ class CommandProcessor:
         self.log.debug('Data not an XML struct - perhaps yet, but not implemented :D')
         return None
 
-    def _call_command(self, command_name, args, kwargs):
+    def call_command(self, command_name, args, kwargs):
         """
         Shouldn't be called directly, only through process method
         :param command_name:
@@ -93,10 +101,12 @@ class CommandProcessor:
         :param kwargs:
         :return: return value of the func/method called
         """
+        self.log.debug('Trying to call: self.commands["{}"](*{}, **{})'.format(str(command_name), str(args), str(kwargs)))
         try:
+            self.log.debug('Calling command: {}(*{}, **{})'.format(self.commands[command_name], str(args), str(kwargs)))
             response = self.commands[command_name](*args, **kwargs)
         except KeyError as err:
-            self.log.error('Attempt to call invalid command ({})'.format(err))
-            raise err
+            self.log.error('Attempted to call invalid command ({})'.format(err))
+            raise Exception('Non-Existing Command Call')
         else:
             return response

@@ -31,7 +31,7 @@ class CommandProcessorTest(unittest.TestCase):
             't': t_func
         }
         cp = CommandProcessor(cmds)
-        cp.log.setLevel(0)
+        cp.log.setLevel(1)
         cl = [
             ['t', [2, 3, 4]],
             ['t', [2, 3], {'z': 4}],
