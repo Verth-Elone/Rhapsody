@@ -45,9 +45,6 @@ class ConsoleFrame(tk.Frame):
         self._output_widget.see('end')
         self._output_widget.configure(state=tk.DISABLED)
 
-    def writeline(self, data):
-        self.write(data + '\n')
-
     def _input(self, event):
         user_input = self._input_content.get()
         if user_input != '':
