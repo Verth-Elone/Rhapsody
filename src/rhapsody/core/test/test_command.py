@@ -23,8 +23,8 @@ class CommandProcessorTest(unittest.TestCase):
 
         command_request_object = ['t', [2], {'y': 3, 'z': 4}]
         json_command_request_object = json.dumps(command_request_object)
-        self.assertEqual(cp.process(command_request_object),
-                         cp.process(json_command_request_object))
+        self.assertEqual(cp.process(json_command_request_object),
+                         t_func(2, 3, 4))
 
     def test_args_kwargs(self):
         cmds = {
