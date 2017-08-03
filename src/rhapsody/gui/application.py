@@ -25,7 +25,7 @@ class BasicApplication(tk.Tk):
                  x_modifier=1,
                  bg_color='white'):
         super().__init__()
-        self.initial_after_delay = 500  # how long should all initial after functions wait
+        self.initial_after_delay = 1  # how long should all initial after functions wait
         self.title(title)
         self.minsize(*minsize)
         self.maxsize(*maxsize)
@@ -51,7 +51,7 @@ class BasicPipedApplication(BasicApplication):
     def __init__(self, pipe_conn, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.conn = pipe_conn
-        self.conn_handler = TkPipeHandler(self, 30)
+        self.conn_handler = TkPipeHandler(self, 60)
 
 
 class SimpleConsoleApplication(BasicPipedApplication):
