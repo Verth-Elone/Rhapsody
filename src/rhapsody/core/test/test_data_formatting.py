@@ -9,6 +9,7 @@ from rhapsody.core.data_formatting import pretty
 
 
 class PrettyFormatterTest(unittest.TestCase):
+
     def test_heterogeneous(self):
         test_dict = {
             'a': 0,
