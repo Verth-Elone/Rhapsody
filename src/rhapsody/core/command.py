@@ -1,7 +1,7 @@
 # Copyright (c) Peter Majko.
 
 """
-
+Rhapsody's core.command module
 """
 from rhapsody.io.log import get_default_logger
 from rhapsody.core.exceptions import UnsupportedDataType, UnsupportedDataInterchangeFormat
