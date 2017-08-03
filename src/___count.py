@@ -13,7 +13,7 @@ def countLinesInPath(path, directory):
 def countLines(paths, directory):
     count = 0
     for path in paths:
-        if path.find('.pyc') == -1 and path.find('__pycache__') == -1:
+        if path[len(path)-3:len(path)] == '.py':
             count = count + countLinesInPath(path, directory)
     return count
 
