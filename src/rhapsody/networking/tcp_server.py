@@ -3,6 +3,7 @@
 """
 Rhapsody's TCP Server based on Twisted
 """
+from rhapsody.io.log import get_default_logger
 from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ServerEndpoint
 from twisted.internet.protocol import Factory, Protocol, connectionDone
@@ -17,11 +18,13 @@ import json
 
 class TCPServer:
     """
-    TCPServer instance is meant to be run in separate process
+    TCPServer instance is meant to be run in a separate process
     """
-    def __init__(self, encoding='UTF-8', timeout=300):
+    def __init__(self, interface='localhost', port=5555,
+                 encoding='UTF-8', timeout=300, logger_name='TCPServer'):
+        self.log = get_default_logger(logger_name)
         self._reactor = reactor
-        self._endpoint = TCP4ServerEndpoint(reactor=self._reactor, port=5555, interface='localhost')
+        self._endpoint = TCP4ServerEndpoint(reactor=self._reactor, port=port, interface=interface)
         self._endpoint.listen(MainFactory(self))
         self.encoding = encoding
         self.timeout = timeout
