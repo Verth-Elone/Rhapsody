@@ -5,7 +5,7 @@ Rhapsody's networking handlers, designed to work with twisted.
 """
 from rhapsody.core.multiprocess import AdvancedPipeHandler
 from twisted.internet import task
-import time
+
 
 class TwistedPipeHandler(AdvancedPipeHandler):
     """
