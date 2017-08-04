@@ -14,8 +14,8 @@ class ConsoleFrame(tk.Frame):
         self._on_input_handle = on_input_handle
         self.config(background='red')
 
-        self._output_widget = tk.Text(self)
-        self._output_widget.configure(bg='black', fg='lime', state=tk.DISABLED)
+        self._output_widget = tk.Text(self, font=('Consolas', 11), bg='black', fg='#1ec503', state=tk.DISABLED)
+        # self._output_widget.configure()
         self._output_widget.pack(fill='both', side='top', expand=True)
 
         self._input_label = tk.Label(self, bg='black', fg='lime', text=' >')
@@ -30,8 +30,9 @@ class ConsoleFrame(tk.Frame):
         self._input_widget.bind('<Key-Up>', self._input_history_prev)
         self._input_widget.bind('<Key-Down>', self._input_history_next)
         self._input_widget.configure(textvariable=self._input_content,
-                                     bg='black', fg='lime',
-                                     insertbackground='lime',
+                                     font=('Consolas', 11),
+                                     bg='black', fg='#1ec503',
+                                     insertbackground='#1ec503',
                                      insertwidth=1,
                                      exportselection=0,
                                      validate='key',
