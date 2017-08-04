@@ -47,7 +47,9 @@ class TCPServer:
         self._reactor.run()
 
     def stop(self):
+        self.log.info('Stopping reactor...')
         self._reactor.stop()
+        self.log.info('Reactor stopped.')
 
 
 class PTCPServer(TCPServer):
@@ -68,14 +70,19 @@ class PTCPServer(TCPServer):
         """
         super().__init__(interface=interface, port=port, encoding=encoding, timeout=timeout, logger_name=logger_name)
         self.parent_process_conn = pipe_conn
-        self.log.debug('Registering parent process pipe handler.')
-        self.parent_process_pipe_handler = TwistedPipeHandler(self.parent_process_conn)
-        self.log.debug('Creating logging pipe handler.')
+        self.command_processor = CommandProcessor({'stop': self.stop}, self.log)
+        self.parent_process_pipe_handler = TwistedPipeHandler(pipe_conn=self.parent_process_conn,
+                                                              on_recv_handle=self.handle_command)
         lph = LoggingPipeHandler(self.parent_process_pipe_handler, 'DEBUG')
         lph.setFormatter(self.log.handlers[0].formatter)
-        self.log.debug('Adding logging pipe handler.')
-        self.log.addHandler(lph)
-        self.log.debug('Logging pipe handler successfully initialized.')
+        # self.log.addHandler(lph)
+        self.log.handlers[0] = lph
+
+    def handle_command(self, data):
+        try:
+            self.command_processor.process(data)
+        except Exception as err:
+            self.log.warning('Not a valid command. Err: {}'.format(err))
 
 
 class MainFactory(ServerFactory):
