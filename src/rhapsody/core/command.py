@@ -47,6 +47,7 @@ class CommandProcessor:
         # Then the data should be of type tuple, list or dict
         # At the moment dict is not supported!
         if isinstance(data_structure, tuple) or isinstance(data_structure, list):
+            self.log.debug('Data has a structure of tuple/list')
             command_name = data_structure[0]
             args = []
             kwargs = {}
@@ -90,7 +91,7 @@ class CommandProcessor:
         :return:
         """
         # TODO - implement try_xml
-        self.log.debug('Data not an XML struct - perhaps yet, but not implemented :D')
+        self.log.debug('Data not an XML struct - perhaps it is, but not yet implemented :D')
         return None
 
     def call_command(self, command_name, args, kwargs):
@@ -103,10 +104,10 @@ class CommandProcessor:
         """
         self.log.debug('Trying to call: self.commands["{}"](*{}, **{})'.format(str(command_name), str(args), str(kwargs)))
         try:
-            self.log.debug('Calling command: {}(*{}, **{})'.format(self.commands[command_name], str(args), str(kwargs)))
             response = self.commands[command_name](*args, **kwargs)
         except KeyError as err:
-            self.log.error('Attempted to call invalid command ({})'.format(err))
+            self.log.debug('Attempted to call invalid command ({})'.format(err))
             raise Exception('Non-Existing Command Call')
         else:
+            self.log.debug('Command finished without error. Return value: {}'.format(response))
             return response
