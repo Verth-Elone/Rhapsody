@@ -85,5 +85,3 @@ class ConsoleInputConverter:
             #     self.logger.info('Invalid command')
             #     self.logger.info('Available Console commands: {cc}'.format(cc=con_cmd_lst))
             #     self.logger.info('Available {pn} commands: {pc}'.format(pn=self.parent.name, pc=par_cmd_lst))
-            #
-            #
