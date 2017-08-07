@@ -7,7 +7,7 @@ from rhapsody.io.log import get_default_logger
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import ProgrammingError, InternalError
+from sqlalchemy.exc import ProgrammingError, InternalError, IntegrityError, OperationalError
 
 
 class Database:
@@ -44,7 +44,11 @@ class Database:
 
         if overwrite:
             # destroy database
-            super_session.execute('DROP DATABASE IF EXISTS {};'.format(self.name))
+            try:
+                super_session.execute('DROP DATABASE IF EXISTS {};'.format(self.name))
+            except OperationalError as err:
+                self.log.warn('{}'.format(err))
+                return -3
             super_session.execute('COMMIT')
 
         try:
@@ -52,7 +56,7 @@ class Database:
             super_session.execute('CREATE DATABASE {0} OWNER {1};'.format(self.name, self.user))
             super_session.execute('COMMIT')
         except ProgrammingError as err:
-            self.log.warn('CREATE DATABASE not successful: {}'.format(err))
+            self.log.warn('{}'.format(err))
             return -2
         finally:
             super_session.close()
@@ -72,26 +76,31 @@ class Database:
         """
         self.log.debug('Filling database with data from orm dictionary')
         session = self.get_session()
-        try:
-            for setup in orm_dict:
-                setup_class = setup['class']  # pointer to the class
-                self.log.debug(setup_class.__tablename__ + ': ')
-                setup_data = setup['data']
-                for record in setup_data:
-                    self.log.debug(record)
-                    instance = setup_class(**record)  # create object from the class
-                    try:
-                        # 1-N, N-1, N-N relations
-                        children = instance.get_children()
-                    except AttributeError as err:
-                        pass
-                    else:
-                        for child in children:
-                            session.add(child)
-                    session.add(instance)
+
+        for setup in orm_dict:
+            setup_class = setup['class']  # pointer to the class
+            self.log.debug(setup_class.__tablename__ + ': ')
+            setup_data = setup['data']
+            for record in setup_data:
+                self.log.debug(record)
+                instance = setup_class(**record)  # create object from the class
+                try:
+                    # 1-N, N-1, N-N relations
+                    children = instance.get_children()
+                except AttributeError as err:
+                    pass
+                else:
+                    for child in children:
+                        session.add(child)
+                session.add(instance)
+                try:
                     session.commit()
-        finally:
-            session.close()
+                except IntegrityError as err:
+                    self.log.warn('{}'.format(err))
+                    # new session must be created because of old one rolled back!
+                    session = self.get_session()
+
+        session.close()
 
 
 class DatabaseUser(Database):
@@ -117,7 +126,7 @@ class DatabaseUser(Database):
             super_session.execute('CREATE USER {0} WITH PASSWORD \'{1}\';'.format(self.name, self.pswd))
             super_session.execute('COMMIT')
         except ProgrammingError as err:
-            self.log.warn('CREATE USER not successful: {}'.format(err))
+            self.log.warn('{}'.format(err))
             return -1
         else:
             # create user's main database - same db name as user name
@@ -125,5 +134,5 @@ class DatabaseUser(Database):
                 super_session.execute('CREATE DATABASE {0} OWNER {0};'.format(self.name))
                 super_session.execute('COMMIT')
             except ProgrammingError as err:
-                self.log.warn('CREATE DATABASE not successful: {}'.format(err))
+                self.log.warn('{}'.format(err))
                 return -2
