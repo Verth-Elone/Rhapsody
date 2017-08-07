@@ -6,6 +6,7 @@ Rhapsody's logger module
 
 from rhapsody.core.multiprocess import PipeHandler
 import logging
+from sys import stdout
 
 
 def get_default_logger(name=None):
@@ -14,7 +15,7 @@ def get_default_logger(name=None):
         formatter = logging.Formatter(fmt='%(process)d|%(processName)s|%(thread)d|%(threadName)s|'
                                           '%(asctime)s|%(levelname)s|%(filename)s|%(name)s.%(funcName)s: %(message)s',
                                       datefmt='%d.%m.%Y %T')
-        handler = logging.StreamHandler()
+        handler = logging.StreamHandler(stream=stdout)
         handler.setFormatter(formatter)
         handler.setLevel(logging.DEBUG)
         logger.addHandler(handler)
