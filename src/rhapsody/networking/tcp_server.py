@@ -23,7 +23,7 @@ class TCPServer:
     """
     TCPServer
     """
-    def __init__(self, interface='localhost', port=5555,
+    def __init__(self, protocol_factory_class, interface='localhost', port=5555,
                  encoding='utf8', timeout=300, logger_name='TCPServer'):
         """
 
@@ -38,7 +38,7 @@ class TCPServer:
         self.log = get_default_logger(logger_name)
         self._reactor = reactor
         self._endpoint = TCP4ServerEndpoint(reactor=self._reactor, port=self.port, interface=self.interface)
-        self._endpoint.listen(MainFactory(self))
+        self._endpoint.listen(protocol_factory_class(self))
         self.encoding = encoding
         self.timeout = timeout
 
@@ -56,7 +56,7 @@ class PTCPServer(TCPServer):
     """
     TCPServer meant to run in separate process. PTCPServer means PipedTCPServer :)
     """
-    def __init__(self, pipe_conn, interface='localhost', port=5555,
+    def __init__(self, pipe_conn, protocol_factory_class, interface='localhost', port=5555,
                  encoding='utf8', timeout=300, logger_name='PTCPServer'):
         """
         PTCPServer should be initialized in separate process from main process.
@@ -68,7 +68,8 @@ class PTCPServer(TCPServer):
         :param timeout: int
         :param logger_name: str
         """
-        super().__init__(interface=interface, port=port, encoding=encoding, timeout=timeout, logger_name=logger_name)
+        super().__init__(protocol_factory_class=protocol_factory_class,
+                         interface=interface, port=port, encoding=encoding, timeout=timeout, logger_name=logger_name)
         # connect this side of pipe
         self.parent_process_conn = pipe_conn
         # CommandProcessor to process commands sent by other side of pipe
@@ -121,8 +122,6 @@ class MainProtocol(Protocol, TimeoutMixin):
         """
         self.parent = parent
         self.log = None
-        self.command_processor = None
-        self.commands = {}
 
     def connectionMade(self):
         """
@@ -133,9 +132,7 @@ class MainProtocol(Protocol, TimeoutMixin):
         client_ip, client_port = self.transport.client
         self.log = get_child_logger(self.parent.log, 'Protocol({})'.format(client_ip))
         self.log.debug('Client connected')
-        self.command_processor = CommandProcessor(self.commands, get_child_logger(self.log, 'CommandProcessor'))
         self.setTimeout(self.parent.timeout)
-        # self.send_msg('RESPONSE', '{"TEXT":"Hello there Mr. Client :)"}')
 
     def dataReceived(self, data):
         """
@@ -155,18 +152,8 @@ class MainProtocol(Protocol, TimeoutMixin):
                     self.log.debug('Data package msg: {}'.format(msg))
                     # decode b msg to s msg
                     decoded_msg = str(msg, self.parent.encoding)
-                    # region Command Processing
-                    try:
-                        result = self.command_processor.process(decoded_msg)
-                    except Exception as ex:
-                        # this is a broad exception, but we don't want the code to fail here ;)
-                        # client will be disconnected
-                        self.log.error("Exception during command processing: {}".format(ex))
-                        self.transport.loseConnection()
-                    else:
-                        self.log.debug('Sending back result: {}'.format(str(result)))
-                        self.send_msg('r', result)  # 'r' means response
-                    # endregion
+                    # do something with the message
+                    self.msg_handle(decoded_msg)
                     # add rest of the data to the total_data, if any
                     self.total_data = self.total_data[self.data_len+4:]
                 else:
@@ -197,3 +184,21 @@ class MainProtocol(Protocol, TimeoutMixin):
         # send to client
         self.transport.write(package)
         self.log.debug('Data sent')
+
+    def msg_handle(self, decoded_msg):
+        """
+        Meant for override - do anything with the message here.
+        :param decoded_msg: string
+        :return: -
+        """
+        self.log.debug('Processing message: {}'.format(decoded_msg))
+        try:
+            result = None
+        except Exception as ex:
+            # this is a broad exception, but we don't want the code to fail here ;)
+            # client will be disconnected
+            self.log.error("Exception during command processing: {}".format(ex))
+            self.transport.loseConnection()
+        else:
+            self.log.debug('Sending back result: {}'.format(str(result)))
+            self.send_msg('r', result)  # 'r' means response

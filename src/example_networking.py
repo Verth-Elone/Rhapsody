@@ -3,12 +3,12 @@
 """
 
 """
-from rhapsody.networking.tcp_server import PTCPServer
+from rhapsody.networking.tcp_server import PTCPServer, MainFactory
 from rhapsody.core.multiprocess import create_piped_process
 from rhapsody.gui.application import SimpleConsoleApplication
 
 if __name__ == '__main__':
-    p, pc = create_piped_process(PTCPServer, 'start')
+    p, pc = create_piped_process(PTCPServer, 'start', {'protocol_factory_class': MainFactory})
     p2, pc2 = create_piped_process(class_=SimpleConsoleApplication,
                                    start_method_name='mainloop',
                                    kwargs={'title': 'AppConsole', 'x_modifier': -1,
