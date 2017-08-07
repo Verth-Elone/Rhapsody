@@ -12,13 +12,13 @@ class ConsoleFrame(tk.Frame):
     def __init__(self, master=None, on_input_handle=None):
         super().__init__(master)
         self._on_input_handle = on_input_handle
-        self.config(background='red')
+        self.config(background='grey')
 
         self._output_widget = tk.Text(self, font=('Consolas', 11), bg='black', fg='#1ec503', state=tk.DISABLED)
         # self._output_widget.configure()
         self._output_widget.pack(fill='both', side='top', expand=True)
 
-        self._input_label = tk.Label(self, bg='black', fg='lime', text=' >')
+        self._input_label = tk.Label(self, bg='black', fg='#1ec503', text=' >')
         self._input_label.pack(side='left')
 
         self._input_content = tk.StringVar()

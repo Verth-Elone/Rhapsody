@@ -11,7 +11,7 @@ if __name__ == '__main__':
     p, pc = create_piped_process(PTCPServer, 'start')
     p2, pc2 = create_piped_process(class_=SimpleConsoleApplication,
                                    start_method_name='mainloop',
-                                   kwargs={'title': 'Simple Console 1', 'x_modifier': 3,
+                                   kwargs={'title': 'AppConsole', 'x_modifier': -1,
                                            'minsize': (1400, 800), 'maxsize': (1920, 1080)})
     p.start()
     p2.start()

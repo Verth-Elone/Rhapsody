@@ -69,28 +69,43 @@ class PTCPServer(TCPServer):
         :param logger_name: str
         """
         super().__init__(interface=interface, port=port, encoding=encoding, timeout=timeout, logger_name=logger_name)
+        # connect this side of pipe
         self.parent_process_conn = pipe_conn
+        # CommandProcessor to process commands sent by other side of pipe
         self.command_processor = CommandProcessor({'stop': self.stop}, self.log)
+        # create the handler for process to process pipe
         self.parent_process_pipe_handler = TwistedPipeHandler(pipe_conn=self.parent_process_conn,
                                                               on_recv_handle=self.handle_command)
+        # create handler for logging, so all logging goes to the other side of pipe
         lph = LoggingPipeHandler(self.parent_process_pipe_handler, 'DEBUG')
         lph.setFormatter(self.log.handlers[0].formatter)
-        # self.log.addHandler(lph)
+        # replace the default StreamHandler with LoggingPipeHandler
+        # in the case both should be kept, use self.log.addHandler(lph) instead
         self.log.handlers[0] = lph
 
     def handle_command(self, data):
+        """
+        Tries to process the data received from the other side of connection.
+        Refer to rhapsody.core.command.CommandProcessor for more information.
+        :param data: data received from the other side of pipe, can be anything
+        :return: -
+        """
         try:
             self.command_processor.process(data)
         except Exception as err:
-            self.log.warning('Not a valid command. Err: {}'.format(err))
+            self.log.warning('Command handling not successful. Err: {}'.format(err))
 
 
 class MainFactory(ServerFactory):
+    """
+    Just a factory.
+    """
     def __init__(self, parent: TCPServer):
         self.parent = parent
 
     def buildProtocol(self, addr):
         protocol = MainProtocol(self.parent)
+        # TODO register commands with the protocol!
         return protocol
 
 
@@ -111,8 +126,9 @@ class MainProtocol(Protocol, TimeoutMixin):
 
     def connectionMade(self):
         """
-        Initialize self.log (logger) with the ip address of client
-        :return:
+        Initialize self.log (logger) with the ip address of client.
+        Initialize self.command_processor with self.commands
+        :return: -
         """
         client_ip, client_port = self.transport.client
         self.log = get_child_logger(self.parent.log, 'Protocol({})'.format(client_ip))
@@ -122,6 +138,11 @@ class MainProtocol(Protocol, TimeoutMixin):
         # self.send_msg('RESPONSE', '{"TEXT":"Hello there Mr. Client :)"}')
 
     def dataReceived(self, data):
+        """
+        Process data which were sent by client.
+        :param data: bytes
+        :return: -
+        """
         self.resetTimeout()
         self.log.debug('Data chunk: {}'.format(data))
         self.total_data = self.remaining_data + data
@@ -139,11 +160,12 @@ class MainProtocol(Protocol, TimeoutMixin):
                         result = self.command_processor.process(decoded_msg)
                     except Exception as ex:
                         # this is a broad exception, but we don't want the code to fail here ;)
+                        # client will be disconnected
                         self.log.error("Exception during command processing: {}".format(ex))
                         self.transport.loseConnection()
                     else:
                         self.log.debug('Sending back result: {}'.format(str(result)))
-                        self.send_msg('response', result)
+                        self.send_msg('r', result)  # 'r' means response
                     # endregion
                     # add rest of the data to the total_data, if any
                     self.total_data = self.total_data[self.data_len+4:]
@@ -162,12 +184,16 @@ class MainProtocol(Protocol, TimeoutMixin):
         self.transport.abortConnection()
 
     def send_msg(self, msg_type, msg_data):
-        msg = dict()
-        msg['TYPE'] = msg_type
-        msg['DATA'] = msg_data
+        # create message out of msg_type and msg_data, this should always be 2 element list
+        msg = [msg_type, msg_data]
+        # transform to json
         json_msg = json.dumps(msg)
+        # transform json string message to bytes
         enc_message = bytes(str(json_msg), self.parent.encoding)
+        # get the 4 bytes long header for the message - how many bytes are in the message
         enc_message_len = pack('>i', len(enc_message))
+        # join header and message together
         package = enc_message_len + enc_message
+        # send to client
         self.transport.write(package)
         self.log.debug('Data sent')

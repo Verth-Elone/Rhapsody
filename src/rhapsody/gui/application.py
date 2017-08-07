@@ -67,3 +67,5 @@ class SimpleConsoleApplication(BasicPipedApplication):
         self.conn_handler.change_on_recv_handle(self.console.write)
         # register handle's send method with the console's on input 'event'
         self.console.change_on_input_handle(self.conn_handler.send)
+        # self.attributes('-fullscreen', True)  # full-screen
+        self.wm_state('zoomed')  # maximize window
