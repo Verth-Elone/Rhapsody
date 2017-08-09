@@ -22,7 +22,7 @@ class CommandProcessor:
     def process(self, data):
         self.log.debug('Data {} {}'.format(type(data), data))
         command_name, args, kwargs = self.resolve_data(data)
-        return self.call_command(command_name, args, kwargs)
+        return command_name, self.call_command(command_name, args, kwargs)
 
     def resolve_data(self, data):
         """
