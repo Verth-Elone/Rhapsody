@@ -134,6 +134,17 @@ class MainProtocol(Protocol, TimeoutMixin):
         self.log.debug('Client connected')
         self.setTimeout(self.parent.timeout)
 
+    def on_connectionLost(self):
+        """
+        Override
+        :return:
+        """
+        pass
+
+    def connectionLost(self, reason=connectionDone):
+        self.on_connectionLost()
+        self.log.debug('Connection Lost: {reason}'.format(reason=connectionDone.value))
+
     def dataReceived(self, data):
         """
         Process data which were sent by client.
@@ -162,9 +173,6 @@ class MainProtocol(Protocol, TimeoutMixin):
             else:
                 self.remaining_data = self.total_data
                 self.total_data = b''
-
-    def connectionLost(self, reason=connectionDone):
-        self.log.debug('Connection Lost: {reason}'.format(reason=connectionDone.value))
 
     def timeoutConnection(self):
         self.log.debug('Connection Timeout')
