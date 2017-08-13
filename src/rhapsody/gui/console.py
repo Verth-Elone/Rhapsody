@@ -53,10 +53,14 @@ class ConsoleFrame(tk.Frame):
             self._input_history_current_index = len(self._input_history) - 1
             self._input_history[self._input_history_current_index] = ''
             self._input_widget.delete(0, 'end')
-            if not self._on_input_handle:
-                self.write(user_input)
+            # TODO - console commands
+            if user_input == '~clear':
+                self.clear()
             else:
-                self._on_input_handle(user_input)
+                if not self._on_input_handle:
+                    self.write(user_input)
+                else:
+                    self._on_input_handle(user_input)
 
     def change_on_input_handle(self, handle):
         self._on_input_handle = handle
@@ -77,3 +81,12 @@ class ConsoleFrame(tk.Frame):
         if self._input_history_current_index == len(self._input_history) - 1:
             self._input_history[len(self._input_history) - 1] = entry_text_after_key
         return True
+
+    def clear(self):
+        self._output_widget.configure(state=tk.NORMAL)
+        try:
+            self._output_widget.delete(1.0, 'end')
+        except tk.TclError as err:
+            print(err)
+        self._output_widget.see('end')
+        self._output_widget.configure(state=tk.DISABLED)
