@@ -1,6 +1,7 @@
 from os import listdir, getcwd, walk
 from os.path import isfile, join
 
+
 def countLinesInPath(path, directory):
     line_count = 0
     char_count = 0
@@ -9,6 +10,7 @@ def countLinesInPath(path, directory):
         line_count += 1
         char_count += len(line)
     return line_count, char_count
+
 
 def countLines(paths, directory):
     line_count = 0
