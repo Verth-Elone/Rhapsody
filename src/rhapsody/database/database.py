@@ -58,6 +58,8 @@ class Database:
         except ProgrammingError as err:
             self.log.warn('{}'.format(err))
             return -2
+        else:
+            self.log.info('DATABASE {} created.'.format(self.name))
         finally:
             super_session.close()
 
@@ -120,6 +122,8 @@ class DatabaseUser(Database):
             except InternalError as err:
                 self.log.warn('(Err: {}).'.format(err))
                 return -3
+            else:
+                self.log.info('USER {} dropped.'.format(self.name))
 
         # create user
         try:
@@ -129,6 +133,7 @@ class DatabaseUser(Database):
             self.log.warn('{}'.format(err))
             return -1
         else:
+            self.log.info('USER {} created.'.format(self.name))
             # create user's main database - same db name as user name
             try:
                 super_session.execute('CREATE DATABASE {0} OWNER {0};'.format(self.name))
@@ -136,3 +141,5 @@ class DatabaseUser(Database):
             except ProgrammingError as err:
                 self.log.warn('{}'.format(err))
                 return -2
+            else:
+                self.log.info('DATABASE {} created.'.format(self.name))
