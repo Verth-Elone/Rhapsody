@@ -41,6 +41,8 @@ class TCPServer:
         self._endpoint.listen(protocol_factory_class(self))
         self.encoding = encoding
         self.timeout = timeout
+        self.commands = {'stop': self.stop}
+        self.command_processor = CommandProcessor(self.commands, self.log)
 
     def start(self):
         self.log.info('TCP Server running at {ip}:{p}'.format(ip=self.interface, p=self.port))
@@ -50,6 +52,17 @@ class TCPServer:
         self.log.info('Stopping reactor...')
         self._reactor.stop()
         self.log.info('Reactor stopped.')
+
+    def handle_command(self, data):
+        """
+        Refer to rhapsody.core.command.CommandProcessor for more information.
+        :param data: various types of data
+        :return: -
+        """
+        try:
+            self.command_processor.process(data)
+        except Exception as err:
+            self.log.warning('Command handling not successful. Err: {}'.format(err))
 
 
 class PTCPServer(TCPServer):
@@ -72,8 +85,6 @@ class PTCPServer(TCPServer):
                          interface=interface, port=port, encoding=encoding, timeout=timeout, logger_name=logger_name)
         # connect this side of pipe
         self.parent_process_conn = pipe_conn
-        # CommandProcessor to process commands sent by other side of pipe
-        self.command_processor = CommandProcessor({'stop': self.stop}, self.log)
         # create the handler for process to process pipe
         self.parent_process_pipe_handler = TwistedPipeHandler(pipe_conn=self.parent_process_conn,
                                                               on_recv_handle=self.handle_command)
@@ -83,18 +94,6 @@ class PTCPServer(TCPServer):
         # replace the default StreamHandler with LoggingPipeHandler
         # in the case both should be kept, use self.log.addHandler(lph) instead
         self.log.handlers[0] = lph
-
-    def handle_command(self, data):
-        """
-        Tries to process the data received from the other side of connection.
-        Refer to rhapsody.core.command.CommandProcessor for more information.
-        :param data: data received from the other side of pipe, can be anything
-        :return: -
-        """
-        try:
-            self.command_processor.process(data)
-        except Exception as err:
-            self.log.warning('Command handling not successful. Err: {}'.format(err))
 
 
 class MainFactory(ServerFactory):
